@@ -44,6 +44,8 @@ class AlienInvasion:
             elif event.type == pygame.MOUSEBUTTONDOWN:
                 mouse_pos = pygame.mouse.get_pos()
                 self._check_play_button(mouse_pos)
+            elif keys[pygame.K_p] and not self.stats.game_active:
+                self._start_game()
 
         # Q to quit
         if keys[pygame.K_q]:
@@ -53,7 +55,20 @@ class AlienInvasion:
             self._fire_bullet()
 
         # Up, down, left, right to move the ship
-        if keys[pygame.K_RIGHT]:
+
+        if keys[pygame.K_RIGHT] and keys[pygame.K_UP]:
+            self.ship.moving_right = True
+            self.ship.moving_up = True
+        elif keys[pygame.K_RIGHT] and keys[pygame.K_DOWN]:
+            self.ship.moving_right = True
+            self.ship.moving_down = True
+        elif keys[pygame.K_LEFT] and keys[pygame.K_UP]:
+            self.ship.moving_left = True
+            self.ship.moving_up = True
+        elif keys[pygame.K_LEFT] and keys[pygame.K_DOWN]:
+            self.ship.moving_left = True
+            self.ship.moving_down = True
+        elif keys[pygame.K_RIGHT]:
             self.ship.moving_right = True
         elif keys[pygame.K_LEFT]:
             self.ship.moving_left = True
@@ -71,20 +86,26 @@ class AlienInvasion:
         """Start a new game when user clicks Play"""
         button_clicked = self.play_button.rect.collidepoint(mouse_pos)
         if not self.stats.game_active and button_clicked:
-            # Reset the game statistics
-            self.stats.reset_stats()
-            self.stats.game_active = True
+            self._start_game()
 
-            # Clear any remaining aliens and bullets from the screen
-            self.aliens.empty()
-            self.bullets.empty()
+    def _start_game(self):
+        """Initializing starting a game"""
+        # Reset the game statistics
+        self.stats.reset_stats()
+        self.stats.game_active = True
 
-            # Create a new fleet and center the ship
-            self._create_fleet()
-            self.ship.center_ship()
+        # Clear any remaining aliens and bullets from the screen
+        self.aliens.empty()
+        self.bullets.empty()
 
-            # Hide the mouse cursor when the game is active
-            pygame.mouse.set_visible(False)
+        # Create a new fleet and center the ship
+        self._create_fleet()
+        self.ship.center_ship()
+
+        # Hide the mouse cursor when the game is active
+        pygame.mouse.set_visible(False)
+
+
 
     def _fire_bullet(self):
         """Create a new bullet and add the bullet to the bullets group"""
