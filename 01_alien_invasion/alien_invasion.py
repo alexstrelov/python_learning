@@ -6,6 +6,7 @@ from ship import Ship
 from bullet import Bullet
 from alien import Alien
 from game_stats import GameStats
+from button import Button
 
 
 class AlienInvasion:
@@ -30,13 +31,20 @@ class AlienInvasion:
 
         self._create_fleet()
 
+        # Make the "Play" button
+        self.play_button = Button(self, "Play the game!")
+
     def _check_events(self):
         """Watching for keyboard and mouse events"""
+        keys = pygame.key.get_pressed()
+
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 sys.exit()
+            elif event.type == pygame.MOUSEBUTTONDOWN:
+                mouse_pos = pygame.mouse.get_pos()
+                self._check_play_button(mouse_pos)
 
-        keys = pygame.key.get_pressed()
         # Q to quit
         if keys[pygame.K_q]:
             sys.exit()
@@ -58,6 +66,25 @@ class AlienInvasion:
             self.ship.moving_left = False
             self.ship.moving_up = False
             self.ship.moving_down = False
+
+    def _check_play_button(self, mouse_pos):
+        """Start a new game when user clicks Play"""
+        button_clicked = self.play_button.rect.collidepoint(mouse_pos)
+        if not self.stats.game_active and button_clicked:
+            # Reset the game statistics
+            self.stats.reset_stats()
+            self.stats.game_active = True
+
+            # Clear any remaining aliens and bullets from the screen
+            self.aliens.empty()
+            self.bullets.empty()
+
+            # Create a new fleet and center the ship
+            self._create_fleet()
+            self.ship.center_ship()
+
+            # Hide the mouse cursor when the game is active
+            pygame.mouse.set_visible(False)
 
     def _fire_bullet(self):
         """Create a new bullet and add the bullet to the bullets group"""
@@ -166,6 +193,7 @@ class AlienInvasion:
             sleep(2)
         else:
             self.stats.game_active = False
+            pygame.mouse.set_visible(True)    # Setting the cursor visible when game is over
 
     def _update_screen(self):
         # Update assets on the screen, and flip to the new screen
@@ -174,6 +202,10 @@ class AlienInvasion:
         for bullet in self.bullets.sprites():
             bullet.draw_bullet()
         self.aliens.draw(self.screen)
+
+        # Draw the play button if the game is inactive
+        if not self.stats.game_active:
+            self.play_button.draw_button()
 
         pygame.display.flip()
 
