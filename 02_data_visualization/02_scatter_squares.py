@@ -19,3 +19,8 @@ ax.tick_params(axis='both', which='major', labelsize=14)
 ax.axis([0, 5050, 0, 130_000_000_000])
 
 plt.show()
+
+
+
+
+
